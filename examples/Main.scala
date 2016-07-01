@@ -13,6 +13,10 @@
  *  limitations under the License.
  */
 
+import akka.actor._
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl._
+
 object Main extends App {
   implicit val system = ActorSystem("example")
   implicit val mat = ActorMaterializer()

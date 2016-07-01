@@ -29,7 +29,6 @@ object Trafalgar {
     val broadcastElems = b.add(Broadcast[Double](rules + 1))
     val merge = b.add(Merge[Boolean](rules))
     val broadcastStats = b.add(Broadcast[Stats](rules))
-    val finalFilter = Flow[Boolean].filter(identity)
 
     /* Source for Stats */
     broadcastElems ~> new StatsFlow[Double] ~> broadcastStats
