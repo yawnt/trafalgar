@@ -1,7 +1,7 @@
 trafalgar
 =========
 
-[Nelson's rules](https://en.wikipedia.org/wiki/Nelson_rules) are heuristics used to determine out-of-control processes. This is an implementation of the 8 rules which exposes an `akka-stream` interface.
+[Nelson rules](https://en.wikipedia.org/wiki/Nelson_rules) are heuristics used to determine out-of-control processes. This is an implementation of the 8 rules which exposes an `akka-stream` interface.
 
 ### Usage
 
