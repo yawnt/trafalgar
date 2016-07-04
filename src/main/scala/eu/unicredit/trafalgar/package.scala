@@ -17,12 +17,19 @@ package eu.unicredit
 
 package object trafalgar {
 
-  def helper[A](f: (Double, Double, A) => Boolean) =
-  { t: (Stats, A) =>
+  def helper(f: (Double, Double, Double) => Boolean) =
+  { t: Stats =>
     t match {
-      case (Stats(μ, σ), elem) => f(μ, σ, elem)
+      case Stats(elem, μ, σ) => f(μ, σ, elem)
       case _ => false
     }
+  }
+
+  def sliding(f: (Double, Double, Seq[Double]) => Boolean) = { stats: Seq[Stats] =>
+    val Stats(_, μ, σ) = stats.head
+    val seq = stats.map(_.elem)
+
+    f(μ, σ, seq)
   }
 
   def sameSide(s: Seq[Double], μ: Double) = s.forall(_ < μ) || s.forall(_ > μ)

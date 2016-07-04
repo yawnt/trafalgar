@@ -20,6 +20,7 @@ import akka.stream.FlowShape
 import akka.stream.stage._
 
 case class Stats(
+  elem: Double,
   μ: Double,
   σ: Double
 )
@@ -35,22 +36,21 @@ class StatsFlow[A <: Double] extends GraphStage[FlowShape[A, Stats]] {
       private var nOfElements = 0
       private var μ = 0d
       private var M2 = 0d
+      private var σ = 0d
 
       setHandler(in, new InHandler {
         override def onPush: Unit = {
           val element = grab(in)
+
+          if(nOfElements <= 1) pull(in)
+          else push(out, Stats(element, μ, σ))
 
           nOfElements += 1
           val δ = element - μ
           μ += δ / nOfElements
 
           M2 += δ * (element - μ)
-
-          push(out, Stats(
-            μ,
-            Math.sqrt(M2 / nOfElements)
-          ))
-
+          σ = Math.sqrt(M2 / (nOfElements - 1))
         }
 
       })

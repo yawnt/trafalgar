@@ -14,3 +14,8 @@ scalacOptions ++= Seq(
 )
 
 libraryDependencies += "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.4.7"
+
+libraryDependencies ++= Seq(
+  "org.scalactic" %% "scalactic" % "2.2.6",
+  "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+)

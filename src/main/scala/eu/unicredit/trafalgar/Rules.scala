@@ -20,17 +20,17 @@ import akka.stream.scaladsl.Flow
 object Rules {
 
   /* Point is over 3 standard deviations from mean */
-  def rule1 = Flow.fromFunction(helper { (μ, σ, curr: Double) =>
+  def rule1 = Flow.fromFunction(helper { (μ, σ, curr) =>
     (curr > μ + 3 * σ) || (curr < μ - 3 * σ)
   })
 
   /* 9+ points are on the same side of the mean */
-  def rule2 = Flow.fromFunction(helper { (μ, _, seq: Seq[Double]) =>
+  def rule2 = Flow[Stats].sliding(9).map(sliding { (μ, _, seq) =>
     seq.forall(_ > μ) || seq.forall(_ < μ)
   })
 
   /* 6+ points are continually increasing / decreasing */
-  def rule3 = Flow.fromFunction(helper { (_, _, seq: Seq[Double]) =>
+  def rule3 = Flow[Stats].sliding(2).map(sliding { (_, _, seq) =>
     seq.sliding(2).forall { x =>
       x(0) > x(1)
     } ||
@@ -40,7 +40,7 @@ object Rules {
   })
 
   /* 14+ points alternate in direction */
-  def rule4 = Flow.fromFunction(helper { (μ, _, seq: Seq[Double]) =>
+  def rule4 = Flow[Stats].sliding(14).map(sliding { (μ, _, seq) =>
     val forall = { (t: (Boolean, Boolean), elem: Double) =>
       val (trend, result) = t
 
@@ -51,7 +51,7 @@ object Rules {
   })
 
   /* 2/3 points are more than 2 standard deviations from the mean in the same direction */
-  def rule5 = Flow.fromFunction(helper { (μ, σ, seq: Seq[Double]) =>
+  def rule5 = Flow[Stats].sliding(3).map(sliding { (μ, σ, seq) =>
     val lessThanMean = seq.filter(_ < μ - 2 * σ)
     val greaterThanMean = seq.filter(_ > μ + 2 * σ)
 
@@ -60,7 +60,7 @@ object Rules {
   })
 
   /* 4/5 points are more than 1 standard deviation from the mean in the same direction */
-  def rule6 = Flow.fromFunction(helper { (μ, σ, seq: Seq[Double]) =>
+  def rule6 = Flow[Stats].sliding(5).map(sliding { (μ, σ, seq) =>
     val lessThanMean = seq.filter(_ < μ - σ)
     val greaterThanMean = seq.filter(_ > μ + σ)
 
@@ -69,14 +69,14 @@ object Rules {
   })
 
   /* 15 points are all within 1 standard deviation from the mean */
-  def rule7 = Flow.fromFunction(helper { (μ, σ, seq: Seq[Double]) =>
+  def rule7 = Flow[Stats].sliding(15).map(sliding { (μ, σ, seq) =>
     seq.forall { elem =>
       elem > μ - σ || elem < μ + σ
     }
   })
 
   /* 8 points in a row are all above or below 1 standard deviation from the mean */
-  def rule8 = Flow.fromFunction(helper { (μ, σ, seq: Seq[Double]) =>
+  def rule8 = Flow[Stats].sliding(8).map(sliding { (μ, σ, seq) =>
     seq.forall { elem =>
       elem > μ + σ || elem < μ - σ
     }
