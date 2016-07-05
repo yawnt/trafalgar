@@ -37,7 +37,6 @@ class TrafalgarSpec extends FunSpec {
   describe("Trafalgar has 8 rules and") {
 
     it("rule1 should work") {
-
       val future = Source(
         (for { i <- 1 to 10 } yield i % 2 + 1.0) :+ 10.0
       ) via new StatsFlow[Double] via Rules.rule1 runWith Sink.seq
@@ -68,7 +67,6 @@ class TrafalgarSpec extends FunSpec {
     }
 
     it("rule4 should work") {
-
       val sourceSeq = Seq.fill(5)(5.0) ++ (for { i <- 1 to 14 } yield {
         if(i % 2 == 0)
           4.0
@@ -85,7 +83,48 @@ class TrafalgarSpec extends FunSpec {
       assert(seq.filter(_ == true).size == 1)
     }
 
+    it("rule5 should work") {
+      val future = Source(
+        (for { i <- 1 to 10 } yield i % 2 + 1.0) ++ Seq[Double](100,100)
+      ) via new StatsFlow[Double] via Rules.rule5 runWith Sink.seq
 
+      val seq = Await.result(future, Duration.Inf)
+
+      assert(seq.filter(_ == true).size == 1)
+    }
+
+    it("rule6 should work") {
+      val future1 = Source(
+        (for { i <- 1 to 10 } yield i % 2 + 1.0) ++ Seq[Double](5,6,-7,8)
+      ) via new StatsFlow[Double] via Rules.rule6 runWith Sink.seq
+      val future2 = Source(
+        (for { i <- 1 to 10 } yield i % 2 + 1.0) ++ Seq[Double](5,6,7,8)
+      ) via new StatsFlow[Double] via Rules.rule6 runWith Sink.seq
+
+      val seq1 = Await.result(future1, Duration.Inf)
+      val seq2 = Await.result(future2, Duration.Inf)
+
+      assert(seq1.filter(_ == true).size == 0)
+      assert(seq2.filter(_ == true).size == 1)
+    }
+
+    it("rule7 should work") {
+      val future = Source(
+        (for { i <- 1 to 15 } yield i % 2 + 1.0)
+      ) via new StatsFlow[Double] via Rules.rule7 runWith Sink.seq
+
+      val seq = Await.result(future, Duration.Inf)
+      assert(seq.filter(_ == true).size == 1)
+    }
+
+    it("rule8 should work") {
+      val future = Source(
+        (for { i <- 1 to 10 } yield i % 2 + 1.0) ++ (20 to 27).map(_.toDouble)
+      ) via new StatsFlow[Double] via Rules.rule8 runWith Sink.seq
+
+      val seq = Await.result(future, Duration.Inf)
+      assert(seq.filter(_ == true).size == 2)
+    }
 
   }
 
