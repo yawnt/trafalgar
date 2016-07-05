@@ -21,25 +21,30 @@ import akka.stream.scaladsl._
 object Trafalgar {
   import Rules._
 
-  def flow = Flow.fromGraph(GraphDSL.create() { implicit b =>
+  def getFlow(name: Int) = Flow[Boolean].filter(x => x).map { bool =>
+    new Throwable(s"Service is misbehaving - Flow $name")
+  }
+
+  def internalFlow = Flow.fromGraph(GraphDSL.create() { implicit b =>
     import GraphDSL.Implicits._
 
     val rules = 8
-    val broadcastElems = b.add(Broadcast[Stats](rules + 1))
-    val merge = b.add(Merge[Boolean](rules))
+    val broadcastElems = b.add(Broadcast[Stats](rules))
+    val merge = b.add(Merge[Throwable](rules))
 
-    new StatsFlow[Double].shape ~> broadcastElems
 
-    broadcastElems ~> rule1 ~> merge
-    broadcastElems ~> rule2 ~> merge
-    broadcastElems ~> rule3 ~> merge
-    broadcastElems ~> rule4 ~> merge
-    broadcastElems ~> rule5 ~> merge
-    broadcastElems ~> rule6 ~> merge
-    broadcastElems ~> rule7 ~> merge
-    broadcastElems ~> rule8 ~> merge
+    broadcastElems ~> rule1 ~> getFlow(1) ~> merge
+    broadcastElems ~> rule2 ~> getFlow(2) ~> merge
+    broadcastElems ~> rule3 ~> getFlow(3) ~> merge
+    broadcastElems ~> rule4 ~> getFlow(4) ~> merge
+    broadcastElems ~> rule5 ~> getFlow(5) ~> merge
+    broadcastElems ~> rule6 ~> getFlow(6) ~> merge
+    broadcastElems ~> rule7 ~> getFlow(7) ~> merge
+    broadcastElems ~> rule8 ~> getFlow(8) ~> merge
 
     FlowShape(broadcastElems.in, merge.out)
-  }).map(_ => new Exception("Service is misbehaving"))
+  })
+
+  def flow = Flow.fromGraph(new StatsFlow[Double]) via internalFlow
 
 }
