@@ -30,7 +30,7 @@ object Rules {
   })
 
   /* 6+ points are continually increasing / decreasing */
-  def rule3 = Flow[Stats].sliding(2).map(sliding { (_, _, seq) =>
+  def rule3 = Flow[Stats].sliding(6).map(sliding { (_, _, seq) =>
     seq.sliding(2).forall { x =>
       x(0) > x(1)
     } ||

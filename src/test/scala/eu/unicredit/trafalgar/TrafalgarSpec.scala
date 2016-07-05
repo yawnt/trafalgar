@@ -49,13 +49,43 @@ class TrafalgarSpec extends FunSpec {
 
     it("rule2 should work") {
       val future = Source(
-        (for { i <- 1 to 10} yield i % 2 + 1.0)
+        (for { i <- 1 to 10 } yield i % 2 + 1.0) ++ (10 to 20).map(_.toDouble)
       ) via new StatsFlow[Double] via Rules.rule2 runWith Sink.seq
 
       val seq = Await.result(future, Duration.Inf)
 
-      assert(seq.filter(_ == true).size == 0)
+      assert(seq.filter(_ == true).size == 3)
     }
+
+    it("rule3 should work") {
+      val future = Source(
+        (for { i <- 1 to 10 } yield i % 2 + 1.0) ++ (10 to 16).map(_.toDouble)
+      ) via new StatsFlow[Double] via Rules.rule3 runWith Sink.seq
+
+      val seq = Await.result(future, Duration.Inf)
+
+      assert(seq.filter(_ == true).size == 3)
+    }
+
+    it("rule4 should work") {
+
+      val sourceSeq = Seq.fill(5)(5.0) ++ (for { i <- 1 to 14 } yield {
+        if(i % 2 == 0)
+          4.0
+        else
+          6.0
+      })
+
+      val future = Source(
+        sourceSeq.to[collection.immutable.Seq]
+      ) via new StatsFlow[Double] via Rules.rule4 runWith Sink.seq
+
+      val seq = Await.result(future, Duration.Inf)
+
+      assert(seq.filter(_ == true).size == 1)
+    }
+
+
 
   }
 
