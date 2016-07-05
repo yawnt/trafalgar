@@ -17,7 +17,7 @@ object Main extends App {
 }
 ```
 
-You should see `Exception`s being printed to `stdout`.
+You should see `Throwable`s being printed to `stdout`.
 
 ### License
 
