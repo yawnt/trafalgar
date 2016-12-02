@@ -13,7 +13,7 @@ scalacOptions ++= Seq(
   "-language:implicitConversions"
 )
 
-libraryDependencies += "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.4.7"
+libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.0"
 
 libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % "2.2.6",
